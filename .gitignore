@@ -1,0 +1,10 @@
+node_modules/
+.cache/
+web/dist/
+3d-previewer.config.json
+# HDRI скачиваются скриптом npm run fetch:hdri, декодеры копируются при npm install
+web/public/hdri/*.hdr
+web/public/decoders/
+# Временная папка моделей на время разработки
+models/
+.DS_Store

@@ -1,0 +1,46 @@
+{
+  "name": "3d-previewer",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "postinstall": "tsx scripts/copy-decoders.ts",
+    "dev": "tsx scripts/copy-decoders.ts && tsx scripts/dev.ts",
+    "build": "tsx scripts/copy-decoders.ts && vite build",
+    "start": "npm run build && tsx server/index.ts",
+    "fetch:hdri": "tsx scripts/fetch-hdri.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fastify/static": "^10.1.5",
+    "@fastify/websocket": "^11.3.1",
+    "@fontsource/inter": "^5.3.0",
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.1",
+    "chokidar": "^5.0.0",
+    "draco3dgltf": "^1.5.7",
+    "fastify": "^5.12.5",
+    "gltf-validator": "^2.0.0-dev.3.10",
+    "meshoptimizer": "^1.3.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router": "^7.18.4",
+    "sharp": "^0.35.5",
+    "three": "^0.186.1",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.186.0",
+    "@types/ws": "^8.18.2",
+    "@vitejs/plugin-react": "^6.1.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2"
+  }
+}
