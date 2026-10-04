@@ -1,0 +1,280 @@
+/* ---------- вьюпорт ---------- */
+
+.scene__tools {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 4;
+}
+
+.btn.scene__add {
+  height: 32px;
+  background: rgb(27 29 28 / 0.78);
+  backdrop-filter: blur(6px);
+}
+
+.btn.scene__add:hover {
+  background: var(--panel-2);
+}
+
+.scene__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 380px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgb(35 38 37 / 0.92);
+  pointer-events: auto;
+}
+
+.scene__empty p {
+  margin: 0;
+}
+
+/* ---------- список моделей ---------- */
+
+.scene-models {
+  margin-bottom: 10px;
+}
+
+.scene-model__thumb {
+  flex: none;
+  width: 36px;
+  height: 27px;
+  border-radius: 4px;
+  background: var(--thumb-bg);
+  overflow: hidden;
+}
+
+.scene-model__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.obj.hidden .scene-model__thumb {
+  opacity: 0.4;
+}
+
+a.obj__icon {
+  text-decoration: none;
+}
+
+.scene-model__warn {
+  color: var(--warning);
+}
+
+.scene-model__error {
+  color: var(--error);
+}
+
+.scene-models__add {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ---------- выбор модели ---------- */
+
+.add-model__tools {
+  /* Поиск остаётся на месте, пока прокручивается список. */
+  position: sticky;
+  top: -16px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: -16px 0 14px;
+  padding: 16px 0 12px;
+  background: var(--panel);
+}
+
+.add-model__search {
+  width: 340px;
+}
+
+.add-model__note {
+  font-size: 12px;
+}
+
+.add-model__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.add-model__item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0 0 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.add-model__item:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.add-model__item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.add-model__item:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.add-model__thumb {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  margin-bottom: 7px;
+  background: var(--thumb-bg);
+}
+
+.add-model__thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.add-model__added {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 0 7px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.add-model__name,
+.add-model__sub {
+  padding: 0 9px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.add-model__name {
+  font-size: 13px;
+}
+
+.add-model__sub {
+  font-size: 11px;
+}
+
+.add-model__nothing {
+  margin: 8px 0;
+}
+
+/* Высота окна не скачет, пока сужается поиск. */
+.add-model {
+  min-height: min(560px, 70vh);
+}
+
+/* ---------- выделенная модель ---------- */
+
+.scene__tools {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  right: 280px;
+  /* Полоса тянется до затенения — пустые места не должны мешать кликам по сцене. */
+  pointer-events: none;
+}
+
+.scene__tools > * {
+  pointer-events: auto;
+}
+
+.scene-sel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.scene-sel__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.scene-sel__name {
+  max-width: 200px;
+  padding: 0 4px 0 6px;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 0.45),
+    0 0 8px rgb(0 0 0 / 0.35);
+}
+
+.scene-sel__fields {
+  align-self: flex-start;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: rgb(27 29 28 / 0.78);
+  backdrop-filter: blur(6px);
+}
+
+.num-field {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: 6px;
+  cursor: text;
+}
+
+.num-field:hover,
+.num-field:focus-within {
+  background: var(--panel-2);
+}
+
+.num-field__label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.num-field__input {
+  width: 58px;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  text-align: right;
+}
+
+.num-field__unit {
+  font-size: 11px;
+}

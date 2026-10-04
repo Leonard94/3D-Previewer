@@ -2,14 +2,29 @@ import { Modal } from '../../components/Modal.tsx';
 import { useViewer } from '../../store/viewer.ts';
 import { HOTKEYS, MOUSE_CONTROLS } from './useViewerHotkeys.ts';
 
-/** Окно со списком горячих клавиш и управления мышью (клавиша «?»). */
-export function HotkeysHelp() {
+/** Окно со списком горячих клавиш и управления мышью (клавиша «?»). extra — клавиши страницы (сцены). */
+export function HotkeysHelp({ extra }: { extra?: { title: string; rows: [string, string][] } }) {
   const open = useViewer((s) => s.hotkeysOpen);
   const setOpen = useViewer((s) => s.setHotkeysOpen);
   if (!open) return null;
   return (
     <Modal title="Горячие клавиши" onClose={() => setOpen(false)}>
       <div className="hotkeys">
+        {extra && (
+          <>
+            <div className="section-title">{extra.title}</div>
+            <dl className="hotkeys__list">
+              {extra.rows.map(([key, action]) => (
+                <div key={key} className="hotkeys__row">
+                  <dt>
+                    <kbd className="kbd">{key}</kbd>
+                  </dt>
+                  <dd>{action}</dd>
+                </div>
+              ))}
+            </dl>
+          </>
+        )}
         <div className="section-title">Клавиатура</div>
         <dl className="hotkeys__list">
           {HOTKEYS.map((h) => (

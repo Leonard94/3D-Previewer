@@ -143,12 +143,7 @@ export function ViewerPage() {
         {model && !broken && <ShadingBar />}
 
         <div className="viewer__overlay viewer__overlay--bottom">
-          <div className="viewer__hint">
-            ЛКМ — вращение · колесо — масштаб · ПКМ — сдвиг · двойной клик — приблизить ·{' '}
-            <button type="button" className="viewer__hotkeys-btn" onClick={() => useViewer.getState().setHotkeysOpen(true)}>
-              <kbd className="kbd">?</kbd> горячие клавиши
-            </button>
-          </div>
+          <ViewportHint />
           {model?.triangles != null && (
             <div className="viewer__summary num">
               {formatInt(model.triangles)} {plural(model.triangles, ['треугольник', 'треугольника', 'треугольников'])}
@@ -200,9 +195,21 @@ export function ViewerPage() {
   );
 }
 
+/** Подсказка по управлению внизу вьюпорта. */
+export function ViewportHint() {
+  return (
+    <div className="viewer__hint">
+      ЛКМ — вращение · колесо — масштаб · ПКМ — сдвиг · двойной клик — приблизить ·{' '}
+      <button type="button" className="viewer__hotkeys-btn" onClick={() => useViewer.getState().setHotkeysOpen(true)}>
+        <kbd className="kbd">?</kbd> горячие клавиши
+      </button>
+    </div>
+  );
+}
+
 const TOAST_MS = 2500;
 
-function Toast() {
+export function Toast() {
   const toast = useViewer((s) => s.toast);
   const [visible, setVisible] = useState(false);
   useEffect(() => {

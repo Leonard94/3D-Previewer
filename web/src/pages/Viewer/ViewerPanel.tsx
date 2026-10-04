@@ -15,18 +15,6 @@ import { TexturesSection } from './TexturesSection.tsx';
 const VIEWS: ViewName[] = ['general', 'top', 'side'];
 
 export function ViewerPanel({ model }: { model: ModelDetails | null }) {
-  const activeView = useViewer((s) => s.activeView);
-  const setView = useViewer((s) => s.setView);
-  const rotate = useViewer((s) => s.rotate);
-  const setRotate = useViewer((s) => s.setRotate);
-  const lightPreset = useViewer((s) => s.lightPreset);
-  const setLightPreset = useViewer((s) => s.setLightPreset);
-  const envBackground = useViewer((s) => s.envBackground);
-  const setEnvBackground = useViewer((s) => s.setEnvBackground);
-  const missingHdri = useViewer((s) => s.missingHdri);
-  const preset = LIGHT_PRESETS[lightPreset];
-  const hdriMissing = preset.environment.type === 'hdri' && missingHdri.includes(preset.environment.url);
-
   return (
     <aside className="viewer__panel">
       <header className="viewer__head">
@@ -39,51 +27,9 @@ export function ViewerPanel({ model }: { model: ModelDetails | null }) {
 
       {model && <IssuesSection key={model.id} model={model} />}
 
-      <Section title="Вид">
-        <div className="btn-group">
-          {VIEWS.map((v, i) => (
-            <button
-              key={v}
-              type="button"
-              className={`btn${activeView === v ? ' active' : ''}`}
-              onClick={() => setView(v)}
-              data-hint={`Клавиша ${i + 1}`}
-            >
-              {VIEW_LABELS[v]}
-            </button>
-          ))}
-        </div>
-        <div className="viewer__toggles viewer__toggles--spaced">
-          <Toggle label="Вращение" checked={rotate} onChange={setRotate} hint="Клавиша R — оборот за 12 с, свет неподвижен" />
-        </div>
-      </Section>
-
-      <Section title="Свет">
-        <select
-          className="input viewer__select"
-          value={lightPreset}
-          onChange={(e) => setLightPreset(e.target.value as LightPresetId)}
-          data-hint="Клавиша L — следующий пресет"
-        >
-          {LIGHT_PRESET_ORDER.map((id) => (
-            <option key={id} value={id}>
-              {LIGHT_PRESETS[id].label}
-            </option>
-          ))}
-        </select>
-        <p className="viewer__note muted">{preset.purpose}</p>
-        {preset.background.hdri && (
-          <Toggle label="Окружение фоном" checked={envBackground} onChange={setEnvBackground} hint="Размытая HDRI-карта вместо однотонного фона" />
-        )}
-        {hdriMissing && (
-          <p className="viewer__warn">
-            HDRI не найден — используется запасное окружение. Запустите <span className="mono">npm run fetch:hdri</span>.
-          </p>
-        )}
-      </Section>
-
+      <ViewSection />
+      <LightSection />
       <WetnessSection />
-
       <DisplaySection />
 
       {model?.stats && <ObjectsSection model={model} />}
@@ -94,8 +40,72 @@ export function ViewerPanel({ model }: { model: ModelDetails | null }) {
   );
 }
 
+// Секции «Вид», «Свет», «Влажность», «Отображение» — общие для вьювера и сцены.
+
+export function ViewSection() {
+  const activeView = useViewer((s) => s.activeView);
+  const setView = useViewer((s) => s.setView);
+  const rotate = useViewer((s) => s.rotate);
+  const setRotate = useViewer((s) => s.setRotate);
+  return (
+    <Section title="Вид">
+      <div className="btn-group">
+        {VIEWS.map((v, i) => (
+          <button
+            key={v}
+            type="button"
+            className={`btn${activeView === v ? ' active' : ''}`}
+            onClick={() => setView(v)}
+            data-hint={`Клавиша ${i + 1}`}
+          >
+            {VIEW_LABELS[v]}
+          </button>
+        ))}
+      </div>
+      <div className="viewer__toggles viewer__toggles--spaced">
+        <Toggle label="Вращение" checked={rotate} onChange={setRotate} hint="Клавиша R — оборот за 12 с, свет неподвижен" />
+      </div>
+    </Section>
+  );
+}
+
+export function LightSection() {
+  const lightPreset = useViewer((s) => s.lightPreset);
+  const setLightPreset = useViewer((s) => s.setLightPreset);
+  const envBackground = useViewer((s) => s.envBackground);
+  const setEnvBackground = useViewer((s) => s.setEnvBackground);
+  const missingHdri = useViewer((s) => s.missingHdri);
+  const preset = LIGHT_PRESETS[lightPreset];
+  const hdriMissing = preset.environment.type === 'hdri' && missingHdri.includes(preset.environment.url);
+  return (
+    <Section title="Свет">
+      <select
+        className="input viewer__select"
+        value={lightPreset}
+        onChange={(e) => setLightPreset(e.target.value as LightPresetId)}
+        data-hint="Клавиша L — следующий пресет"
+      >
+        {LIGHT_PRESET_ORDER.map((id) => (
+          <option key={id} value={id}>
+            {LIGHT_PRESETS[id].label}
+          </option>
+        ))}
+      </select>
+      <p className="viewer__note muted">{preset.purpose}</p>
+      {preset.background.hdri && (
+        <Toggle label="Окружение фоном" checked={envBackground} onChange={setEnvBackground} hint="Размытая HDRI-карта вместо однотонного фона" />
+      )}
+      {hdriMissing && (
+        <p className="viewer__warn">
+          HDRI не найден — используется запасное окружение. Запустите <span className="mono">npm run fetch:hdri</span>.
+        </p>
+      )}
+    </Section>
+  );
+}
+
 /** Отдельный компонент: ползунок обновляет стор на каждое движение, остальная панель не перерисовывается. */
-function WetnessSection() {
+export function WetnessSection() {
   const wetness = useViewer((s) => s.wetness);
   const setWetness = useViewer((s) => s.setWetness);
   const shading = useViewer((s) => s.shading);
@@ -125,7 +135,7 @@ function WetnessSection() {
   );
 }
 
-function DisplaySection() {
+export function DisplaySection() {
   const grid = useViewer((s) => s.grid);
   const setGrid = useViewer((s) => s.setGrid);
   const mannequin = useViewer((s) => s.mannequin);

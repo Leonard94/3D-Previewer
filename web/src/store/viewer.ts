@@ -11,7 +11,7 @@ export type CameraCommand =
   | { kind: 'view'; view: ViewName; instant?: boolean; seq: number }
   | { kind: 'fit'; seq: number }
   | { kind: 'focus'; point: [number, number, number]; seq: number }
-  /** Вписать в кадр объект модели (по имени узла) в текущем ракурсе. */
+  /** Вписать в кадр объект модели (по имени узла; в сцене — модель по uid) в текущем ракурсе. */
   | { kind: 'object'; name: string; seq: number };
 
 type DistributiveOmit<T, K extends keyof T> = T extends unknown ? Omit<T, K> : never;
@@ -78,6 +78,8 @@ interface ViewerState {
   setShadows: (on: boolean) => void;
   toggleHidden: (name: string) => void;
   toggleIsolated: (name: string) => void;
+  /** Вписать объект в кадр в текущем ракурсе, не выделяя (в сцене — модель по uid). */
+  frameObject: (name: string) => void;
   /** Выделить объект; focus — ещё и вписать его в кадр. */
   selectObject: (name: string | null, opts?: { focus?: boolean }) => void;
   setHovered: (name: string | null) => void;
@@ -185,6 +187,7 @@ export const useViewer = create<ViewerState>((set, get) => ({
     const isolated = get().isolated === name ? null : name;
     set({ isolated, hidden: isolated ? get().hidden.filter((n) => n !== name) : get().hidden });
   },
+  frameObject: (name) => set({ activeView: null, command: cmd({ kind: 'object', name }) }),
   selectObject: (name, opts) =>
     set(name && opts?.focus ? { selected: name, activeView: null, command: cmd({ kind: 'object', name }) } : { selected: name }),
   setHovered: (hovered) => set({ hovered }),

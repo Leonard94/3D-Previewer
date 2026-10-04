@@ -4,6 +4,7 @@ import { api } from '../../api/client.ts';
 import { CopyButton } from '../../components/ui.tsx';
 import { useDismiss } from '../../components/useDismiss.ts';
 import { useViewer } from '../../store/viewer.ts';
+import { addToScene } from '../Scene/bridge.ts';
 
 const IS_MAC = /Mac/i.test(navigator.platform || navigator.userAgent);
 
@@ -52,6 +53,20 @@ export function ModelMenu({ model }: { model: ModelDetails }) {
                 Открыть в Blender
               </button>
             )}
+            <button
+              type="button"
+              className="model-menu__item"
+              onClick={() =>
+                run(async () => {
+                  const result = await addToScene(model.id);
+                  if (result === 'sent') useViewer.getState().showToast('Добавлена в открытую сцену');
+                  if (result === 'blocked') useViewer.getState().showToast('Браузер не дал открыть вкладку сцены');
+                })
+              }
+              disabled={Boolean(model.analysisError)}
+            >
+              Добавить в сцену <span className="muted">к другим моделям</span>
+            </button>
             <button
               type="button"
               className="model-menu__item"

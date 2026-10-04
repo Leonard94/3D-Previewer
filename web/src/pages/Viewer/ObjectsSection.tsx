@@ -136,7 +136,7 @@ function ObjectRow({ object: o, visible, isolated, selected }: { object: ObjectI
   );
 }
 
-function EyeIcon({ open }: { open: boolean }) {
+export function EyeIcon({ open }: { open: boolean }) {
   return (
     <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden>
       <path d="M1.5 8s2.4-4.5 6.5-4.5S14.5 8 14.5 8 12.1 12.5 8 12.5 1.5 8 1.5 8z" fill="none" stroke="currentColor" strokeWidth="1.3" />

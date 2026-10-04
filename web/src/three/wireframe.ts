@@ -104,3 +104,19 @@ export function disposeWireframe(root: THREE.Object3D): void {
   data.wireframe?.material.dispose();
   delete data.wireframe;
 }
+
+/**
+ * Снимает каркас с копии модели в сцене и освобождает его. Геометрия и материалы самой модели
+ * остаются — они общие с другими копиями.
+ */
+export function removeWireframe(root: THREE.Object3D): void {
+  const data = root.userData as { wireframe?: WireState };
+  const state = data.wireframe;
+  if (!state) return;
+  for (const [mesh, lines] of state.lines) {
+    for (const line of lines) mesh.remove(line);
+    lines[0]?.geometry.dispose(); // у линий одного меша геометрия общая
+  }
+  state.material.dispose();
+  delete data.wireframe;
+}

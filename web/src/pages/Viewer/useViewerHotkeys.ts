@@ -35,10 +35,14 @@ export const MOUSE_CONTROLS: [string, string][] = [
   ['Двойной клик', 'Приблизить к точке и вращать вокруг неё'],
 ];
 
-function isTyping(target: EventTarget | null): boolean {
+/** Поля, где клавиши вводят текст. Переключатели и ползунки — не в счёт: после клика по ним клавиши работают. */
+const NON_TEXT_INPUTS = new Set(['checkbox', 'radio', 'range', 'button', 'submit', 'reset', 'color', 'file']);
+
+export function isTyping(target: EventTarget | null): boolean {
   const el = target as HTMLElement | null;
   if (!el) return false;
-  return el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable;
+  if (el.tagName === 'INPUT') return !NON_TEXT_INPUTS.has((el as HTMLInputElement).type);
+  return el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable;
 }
 
 /** Горячие клавиши вьювера (не срабатывают при вводе текста). «?» — список клавиш. */

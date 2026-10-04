@@ -167,7 +167,7 @@ function ModelLoader({
 const onHdriStatus = (url: string, ok: boolean) => useViewer.getState().setHdriMissing(url, !ok);
 
 /** Свет, пол и сетка по выбранному пресету (общему для всех моделей). */
-function SceneLighting({ bounds }: { bounds: ModelBounds }) {
+export function SceneLighting({ bounds }: { bounds: ModelBounds }) {
   const presetId = useViewer((s) => s.lightPreset);
   const envBackground = useViewer((s) => s.envBackground);
   const grid = useViewer((s) => s.grid);
@@ -195,7 +195,7 @@ const TWO_PI = Math.PI * 2;
  * Выключение — пауза на текущем угле; виды и «Вписать» плавно возвращают исходный поворот,
  * чтобы кадр совпадал с габаритами модели.
  */
-function Turntable({ bounds, children }: { bounds: ModelBounds; children: ReactNode }) {
+export function Turntable({ bounds, children }: { bounds: ModelBounds; children: ReactNode }) {
   const rotate = useViewer((s) => s.rotate);
   const command = useViewer((s) => s.command);
   const invalidate = useThree((s) => s.invalidate);
