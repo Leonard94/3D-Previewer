@@ -6,14 +6,6 @@ import * as THREE from 'three';
 /** off — нет; overlay — поверх затенённой модели; only — только каркас, как Wireframe в Blender. */
 export type WireframeMode = 'off' | 'overlay' | 'only';
 
-export const WIREFRAME_MODES: WireframeMode[] = ['off', 'overlay', 'only'];
-
-export const WIREFRAME_LABELS: Record<WireframeMode, string> = {
-  off: 'Нет',
-  overlay: 'Поверх',
-  only: 'Только',
-};
-
 /** Поверх модели линии чуть прозрачнее, чтобы не забивать текстуры. */
 const OPACITY: Record<Exclude<WireframeMode, 'off'>, number> = { overlay: 0.4, only: 0.65 };
 

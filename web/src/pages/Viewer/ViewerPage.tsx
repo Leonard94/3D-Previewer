@@ -8,6 +8,7 @@ import { useViewer } from '../../store/viewer.ts';
 import { LIGHT_PRESETS } from '../../three/lightPresets.ts';
 import { ViewerCanvas, type LoadState } from '../../three/ViewerCanvas.tsx';
 import { HotkeysHelp } from './HotkeysHelp.tsx';
+import { ShadingBar } from './ShadingBar.tsx';
 import { ViewerPanel } from './ViewerPanel.tsx';
 import { useViewerHotkeys } from './useViewerHotkeys.ts';
 import './ViewerPage.css';
@@ -138,6 +139,8 @@ export function ViewerPage() {
             )}
           </div>
         )}
+
+        {model && !broken && <ShadingBar />}
 
         <div className="viewer__overlay viewer__overlay--bottom">
           <div className="viewer__hint">

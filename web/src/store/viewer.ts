@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import type { DisplayMode } from '../three/displayModes.ts';
 import { LIGHT_PRESET_ORDER, type LightPresetId } from '../three/lightPresets.ts';
 import type { ViewName } from '../three/views.ts';
-import { WIREFRAME_MODES, type WireframeMode } from '../three/wireframe.ts';
+import type { WireframeMode } from '../three/wireframe.ts';
 import { readSetting, writeSetting } from './persist.ts';
 
 /** Команда для камеры; seq растёт с каждой командой, чтобы повтор той же команды тоже срабатывал. */
@@ -23,7 +23,10 @@ interface ViewerState {
   grid: boolean;
   /** Влажность, 0–100 %. При открытии модели — 0. */
   wetness: number;
+  /** Итоговый режим каркаса для сцены — выводится из shading и wireOverlay. */
   wireframe: WireframeMode;
+  /** «Каркас поверх модели» в затенённых режимах. Запоминается, пока включён режим «Каркас». */
+  wireOverlay: boolean;
   rotate: boolean;
   /** Окно «Горячие клавиши». */
   hotkeysOpen: boolean;
@@ -34,6 +37,8 @@ interface ViewerState {
   missingHdri: string[];
   /** Режим отображения — временная подмена материалов. Не запоминается: новая вкладка — «Обычный». */
   displayMode: DisplayMode;
+  /** Затенение, как в шапке вьюпорта Blender: «Каркас» или один из режимов отображения. */
+  shading: Shading;
   /** Вспомогательные элементы: запоминаются для всех моделей. */
   mannequin: boolean;
   dimensions: boolean;
@@ -58,7 +63,8 @@ interface ViewerState {
   clearActiveView: () => void;
   setGrid: (on: boolean) => void;
   setWetness: (percent: number) => void;
-  setWireframe: (mode: WireframeMode) => void;
+  setShading: (shading: Shading) => void;
+  setWireOverlay: (on: boolean) => void;
   /** W: нет → поверх → только каркас → нет. */
   cycleWireframe: () => void;
   setRotate: (on: boolean) => void;
@@ -67,7 +73,6 @@ interface ViewerState {
   nextLightPreset: () => void;
   setEnvBackground: (on: boolean) => void;
   setHdriMissing: (url: string, missing: boolean) => void;
-  setDisplayMode: (mode: DisplayMode) => void;
   setMannequin: (on: boolean) => void;
   setDimensions: (on: boolean) => void;
   setShadows: (on: boolean) => void;
@@ -82,6 +87,12 @@ interface ViewerState {
   showToast: (text: string) => void;
 }
 
+/** Режим затенения: 'wireframe' — только каркас, остальные — режимы отображения материалов. */
+export type Shading = 'wireframe' | DisplayMode;
+
+const wireMode = (shading: Shading, overlay: boolean): WireframeMode =>
+  shading === 'wireframe' ? 'only' : overlay ? 'overlay' : 'off';
+
 const isPresetId = (v: unknown): v is LightPresetId => LIGHT_PRESET_ORDER.includes(v as LightPresetId);
 
 let seq = 0;
@@ -93,12 +104,14 @@ export const useViewer = create<ViewerState>((set, get) => ({
   grid: readSetting('grid', true),
   wetness: 0,
   wireframe: 'off',
+  wireOverlay: false,
   rotate: false,
   hotkeysOpen: false,
   lightPreset: readSetting<LightPresetId>('lightPreset', 'day', isPresetId),
   envBackground: readSetting('envBackground', true),
   missingHdri: [],
   displayMode: 'normal',
+  shading: 'normal',
   mannequin: readSetting('mannequin', false),
   dimensions: readSetting('dimensions', false),
   shadows: readSetting('shadows', true),
@@ -118,10 +131,19 @@ export const useViewer = create<ViewerState>((set, get) => ({
     set({ grid });
   },
   setWetness: (wetness) => set({ wetness: Math.min(Math.max(Math.round(wetness), 0), 100) }),
-  setWireframe: (wireframe) => set({ wireframe }),
+  // В режиме «Каркас» displayMode сохраняется: выход из каркаса возвращает прежние материалы.
+  setShading: (shading) =>
+    set({
+      shading,
+      displayMode: shading === 'wireframe' ? get().displayMode : shading,
+      wireframe: wireMode(shading, get().wireOverlay),
+    }),
+  setWireOverlay: (wireOverlay) => set({ wireOverlay, wireframe: wireMode(get().shading, wireOverlay) }),
   cycleWireframe: () => {
-    const i = WIREFRAME_MODES.indexOf(get().wireframe);
-    set({ wireframe: WIREFRAME_MODES[(i + 1) % WIREFRAME_MODES.length]! });
+    const { wireframe, displayMode } = get();
+    if (wireframe === 'off') set({ wireOverlay: true, wireframe: 'overlay' });
+    else if (wireframe === 'overlay') set({ shading: 'wireframe', wireframe: 'only' });
+    else set({ shading: displayMode, wireOverlay: false, wireframe: 'off' });
   },
   setRotate: (rotate) => set({ rotate }),
   setHotkeysOpen: (hotkeysOpen) => set({ hotkeysOpen }),
@@ -141,7 +163,6 @@ export const useViewer = create<ViewerState>((set, get) => ({
     const list = get().missingHdri.filter((u) => u !== url);
     set({ missingHdri: missing ? [...list, url] : list });
   },
-  setDisplayMode: (displayMode) => set({ displayMode }),
   setMannequin: (mannequin) => {
     writeSetting('mannequin', mannequin);
     set({ mannequin });
