@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { formatInt } from '../../format.ts';
-import { NO_CATEGORY, SORT_OPTIONS, hasActiveFilters, type CatalogView, type Filters, type SortKey } from './filters.ts';
+import { SORT_OPTIONS, hasActiveFilters, type CatalogView, type Filters, type SortKey } from './filters.ts';
 
 interface Props {
   filters: Filters;
@@ -30,8 +29,6 @@ export function FiltersPanel({ filters, view, onChange, onReset }: Props) {
     const tags = filters.tags.includes(tag) ? filters.tags.filter((t) => t !== tag) : [...filters.tags, tag];
     onChange({ tags });
   };
-
-  const showTree = view.categories.length > 0;
 
   return (
     <aside className="filters">
@@ -70,34 +67,6 @@ export function FiltersPanel({ filters, view, onChange, onReset }: Props) {
         </select>
       </div>
 
-      {showTree && (
-        <div className="filters__group">
-          <div className="section-title">Категории</div>
-          <ul className="tree">
-            <TreeItem label="Все" count={view.allCount} active={!filters.cat} onClick={() => onChange({ cat: '' })} />
-            {view.categories.map((c) => (
-              <TreeItem
-                key={c.path}
-                label={c.name}
-                depth={c.depth}
-                count={c.count}
-                active={filters.cat === c.path}
-                onClick={() => onChange({ cat: c.path })}
-              />
-            ))}
-            {view.uncategorizedCount > 0 || filters.cat === NO_CATEGORY ? (
-              <TreeItem
-                label="Без категории"
-                muted
-                count={view.uncategorizedCount}
-                active={filters.cat === NO_CATEGORY}
-                onClick={() => onChange({ cat: NO_CATEGORY })}
-              />
-            ) : null}
-          </ul>
-        </div>
-      )}
-
       {view.tags.length > 0 && (
         <div className="filters__group">
           <div className="section-title">Теги</div>
@@ -127,28 +96,5 @@ export function FiltersPanel({ filters, view, onChange, onReset }: Props) {
         </button>
       )}
     </aside>
-  );
-}
-
-function TreeItem(props: {
-  label: string;
-  count: number;
-  active: boolean;
-  depth?: number;
-  muted?: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <li>
-      <button
-        type="button"
-        className={`tree__item${props.active ? ' active' : ''}${props.muted ? ' muted' : ''}`}
-        style={{ paddingLeft: 10 + (props.depth ?? 0) * 14 }}
-        onClick={props.onClick}
-      >
-        <span className="tree__label">{props.label}</span>
-        <span className="tree__count num">{formatInt(props.count)}</span>
-      </button>
-    </li>
   );
 }

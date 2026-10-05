@@ -16,8 +16,8 @@ export interface AppConfig {
 }
 
 const DEFAULT_CONFIG: AppConfig = {
-  // Временная папка на время разработки; потом заменяется на res://assets/models игры.
-  modelsDir: path.join(APP_ROOT, 'models'),
+  // Общая библиотека моделей проекта PVZ.
+  modelsDir: path.join(APP_ROOT, '..', 'models'),
   host: '127.0.0.1',
   port: 4310,
 };

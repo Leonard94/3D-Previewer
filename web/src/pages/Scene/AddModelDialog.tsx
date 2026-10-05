@@ -8,7 +8,7 @@ import { useScene } from '../../store/scene.ts';
 
 function matches(m: ModelSummary, q: string): boolean {
   if (!q) return true;
-  return [m.title, m.category, m.id, ...m.tags].some((s) => s.toLowerCase().includes(q));
+  return [m.title, m.id, ...m.tags].some((s) => s.toLowerCase().includes(q));
 }
 
 /** Выбор модели из каталога. Клик — добавить и закрыть, Shift+клик — добавить и выбрать ещё. */
@@ -35,7 +35,7 @@ export function AddModelDialog({ onClose }: { onClose: () => void }) {
         <div className="add-model__tools">
           <input
             className="input add-model__search"
-            placeholder="Название, категория или тег"
+            placeholder="Название, файл или тег"
             value={query}
             autoFocus
             onChange={(e) => setQuery(e.target.value)}
@@ -63,7 +63,7 @@ export function AddModelDialog({ onClose }: { onClose: () => void }) {
                   </span>
                   <span className="add-model__name">{m.title}</span>
                   <span className="add-model__sub muted">
-                    {m.analysisError ? 'Файл не читается' : [m.category, m.triangles !== null && `${formatInt(m.triangles)} треуг.`].filter(Boolean).join(' · ')}
+                    {m.analysisError ? 'Файл не читается' : m.triangles !== null && `${formatInt(m.triangles)} треуг.`}
                   </span>
                 </button>
               </li>

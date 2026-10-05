@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router';
 import type { ModelSummary } from '../../../../shared/types.ts';
 import { thumbUrl } from '../../api/client.ts';
@@ -15,12 +16,12 @@ export function ScenePanel({ onAdd }: { onAdd: () => void }) {
     <aside className="viewer__panel">
       <header className="viewer__head">
         <div className="viewer__title-row">
-          <h1 className="viewer__title">Сцена</h1>
+          <SceneTitle />
           <Link to="/" className="btn btn--small">
             Каталог
           </Link>
         </div>
-        <p className="viewer__desc">Сцена живёт, пока открыта вкладка: после перезагрузки страницы она начнётся с нуля.</p>
+        <p className="viewer__desc">Сохраняется сама, в этом браузере. Все сцены — на главной, над каталогом.</p>
       </header>
 
       <ModelsSection onAdd={onAdd} />
@@ -29,6 +30,37 @@ export function ScenePanel({ onAdd }: { onAdd: () => void }) {
       <WetnessSection />
       <DisplaySection />
     </aside>
+  );
+}
+
+/** Название сцены — правится прямо в заголовке. Enter или уход фокуса — сохранить, Esc — отменить. */
+function SceneTitle() {
+  const title = useScene((s) => s.title);
+  const [draft, setDraft] = useState<string | null>(null);
+  const commit = () => {
+    if (draft !== null) useScene.getState().rename(draft);
+    setDraft(null);
+  };
+  return (
+    <input
+      className="viewer__title scene-title"
+      value={draft ?? title}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') e.currentTarget.blur();
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          setDraft(null);
+          // Черновик уже сброшен — уход фокуса ничего не сохранит.
+          requestAnimationFrame(() => (e.target as HTMLInputElement).blur());
+        }
+      }}
+      maxLength={80}
+      spellCheck={false}
+      aria-label="Название сцены"
+      data-hint="Переименовать"
+    />
   );
 }
 
@@ -132,7 +164,6 @@ function StatusLine({ status, model }: { status: ItemStatus | undefined; model: 
   if (!status || status.state === 'loading') return <div className="obj__sub muted">Загрузка…</div>;
   return (
     <div className="obj__sub muted">
-      {model?.category && `${model.category} · `}
       {model?.triangles != null && <span className="num">{formatInt(model.triangles)} треуг.</span>}
     </div>
   );

@@ -8,6 +8,7 @@ import { useViewer } from '../../store/viewer.ts';
 import { LIGHT_PRESETS } from '../../three/lightPresets.ts';
 import { ViewerCanvas, type LoadState } from '../../three/ViewerCanvas.tsx';
 import { HotkeysHelp } from './HotkeysHelp.tsx';
+import { BackButton } from './BackButton.tsx';
 import { ShadingBar } from './ShadingBar.tsx';
 import { ViewerPanel } from './ViewerPanel.tsx';
 import { useViewerHotkeys } from './useViewerHotkeys.ts';
@@ -124,19 +125,19 @@ export function ViewerPage() {
 
         {model && (
           <div className="viewer__overlay viewer__overlay--top">
-            <div className="viewer__crumb">
-              {model.category && <span className="muted">{model.category.toUpperCase()} / </span>}
-              {model.title.toUpperCase()}
+            <div className="viewer__crumb-row">
+              <BackButton />
+              <div className="viewer__crumb">{model.title.toUpperCase()}</div>
             </div>
-            {model.tags.length > 0 && (
-              <div className="viewer__tags">
-                {model.tags.map((t) => (
-                  <span key={t} className="viewer__tag">
-                    {t}
-                  </span>
-                ))}
-              </div>
-            )}
+            <div className="viewer__tags">
+              <span className="viewer__tag viewer__tag--file">glb</span>
+              {model.blendFile && <span className="viewer__tag viewer__tag--file">blend</span>}
+              {model.tags.map((t) => (
+                <span key={t} className="viewer__tag">
+                  {t}
+                </span>
+              ))}
+            </div>
           </div>
         )}
 

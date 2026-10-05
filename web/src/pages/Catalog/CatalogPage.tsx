@@ -6,6 +6,7 @@ import { startCatalogSync, useCatalog } from '../../store/catalog.ts';
 import { startThumbs } from '../../thumbs/queue.ts';
 import { FiltersPanel } from './FiltersPanel.tsx';
 import { ModelCard } from './ModelCard.tsx';
+import { ScenesSection } from './ScenesSection.tsx';
 import { buildView, parseFilters, serializeFilters, type Filters } from './filters.ts';
 import './CatalogPage.css';
 
@@ -33,12 +34,11 @@ export function CatalogPage() {
       setParams((prev) => serializeFilters({ ...parseFilters(prev), ...patch }), { replace: opts?.replace }),
     [setParams],
   );
-  const resetFilters = useCallback(() => updateFilters({ q: '', cat: '', tags: [] }), [updateFilters]);
+  const resetFilters = useCallback(() => updateFilters({ q: '', tags: [] }), [updateFilters]);
 
   const models = useMemo(() => Object.values(modelsById), [modelsById]);
   const view = useMemo(() => buildView(models, filters), [models, filters]);
 
-  const categoryCount = useMemo(() => new Set(models.map((m) => m.category).filter(Boolean)).size, [models]);
   const tagCount = useMemo(() => new Set(models.flatMap((m) => m.tags)).size, [models]);
 
   const now = Date.now();
@@ -49,13 +49,14 @@ export function CatalogPage() {
     <div className="catalog">
       <AppHeader>
         <span className="muted num">
-          {formatInt(models.length)} {plural(models.length, ['модель', 'модели', 'моделей'])} · {categoryCount}{' '}
-          {plural(categoryCount, ['категория', 'категории', 'категорий'])} · {tagCount}{' '}
+          {formatInt(models.length)} {plural(models.length, ['модель', 'модели', 'моделей'])} · {tagCount}{' '}
           {plural(tagCount, ['тег', 'тега', 'тегов'])}
         </span>
       </AppHeader>
 
       {error && <div className="catalog__notice">Сервер недоступен: {error}</div>}
+
+      <ScenesSection />
 
       {dirMissing && (
         <div className="catalog__empty">

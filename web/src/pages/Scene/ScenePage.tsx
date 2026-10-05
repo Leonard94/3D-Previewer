@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { useCallback, useEffect, useState } from 'react';
 import { formatInt, plural } from '../../format.ts';
 import { startCatalogSync, useCatalog } from '../../store/catalog.ts';
 import { useScene } from '../../store/scene.ts';
 import { useViewer } from '../../store/viewer.ts';
 import { LIGHT_PRESETS } from '../../three/lightPresets.ts';
 import { SceneCanvas } from '../../three/SceneCanvas.tsx';
+import { BackButton } from '../Viewer/BackButton.tsx';
 import { HotkeysHelp } from '../Viewer/HotkeysHelp.tsx';
 import { ShadingBar } from '../Viewer/ShadingBar.tsx';
 import { useViewerHotkeys } from '../Viewer/useViewerHotkeys.ts';
@@ -13,7 +13,6 @@ import { Toast, ViewportHint } from '../Viewer/ViewerPage.tsx';
 import '../Viewer/ViewerPage.css';
 import { AddModelDialog } from './AddModelDialog.tsx';
 import { PlusIcon } from './icons.tsx';
-import { listenSceneRequests } from './bridge.ts';
 import { ScenePanel } from './ScenePanel.tsx';
 import { SelectionBar } from './SelectionBar.tsx';
 import { SCENE_HOTKEYS, useSceneHotkeys } from './useSceneHotkeys.ts';
@@ -23,37 +22,18 @@ import './ScenePage.css';
 export function ScenePage() {
   const [adding, setAdding] = useState(false);
   const items = useScene((s) => s.items);
+  const title = useScene((s) => s.title);
   const models = useCatalog((s) => s.models);
   const presetBg = useViewer((s) => LIGHT_PRESETS[s.lightPreset].background.color);
 
+  useEffect(() => startCatalogSync(), []);
   useEffect(() => {
-    startCatalogSync();
-    document.title = 'Сцена';
-  }, []);
+    document.title = title;
+  }, [title]);
   useViewerHotkeys();
 
   const openAdd = useCallback(() => setAdding(true), []);
   useSceneHotkeys(openAdd);
-
-  // «Добавить в сцену» из инспектора: в открытую вкладку — сообщением, в новую — параметром ?add=.
-  useEffect(
-    () =>
-      listenSceneRequests((id) => {
-        useScene.getState().add(id);
-        const title = useCatalog.getState().models[id]?.title ?? id;
-        useViewer.getState().showToast(`Добавлена «${title}»`);
-      }),
-    [],
-  );
-  const [params, setParams] = useSearchParams();
-  const handledAdd = useRef<string | null>(null);
-  useEffect(() => {
-    const id = params.get('add');
-    if (!id || handledAdd.current === id) return;
-    handledAdd.current = id;
-    useScene.getState().add(id);
-    setParams({}, { replace: true });
-  }, [params, setParams]);
 
   const triangles = items.reduce((sum, i) => sum + (models[i.modelId]?.triangles ?? 0), 0);
 
@@ -63,6 +43,7 @@ export function ScenePage() {
         <SceneCanvas />
 
         <div className="scene__tools">
+          <BackButton />
           <button type="button" className="btn scene__add" onClick={() => setAdding(true)} data-hint="Shift+A, как в Blender">
             <PlusIcon /> Добавить модель
           </button>

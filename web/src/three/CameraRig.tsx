@@ -25,9 +25,11 @@ interface Props {
   target: THREE.Object3D;
   /** Мировой AABB объекта модели по имени — для «вписать объект». */
   objectBounds: (name: string) => THREE.Box3 | null;
+  /** Камера остановилась — положение и точка, вокруг которой она вращается. */
+  onRest?: (position: [number, number, number], target: [number, number, number]) => void;
 }
 
-export function CameraRig({ bounds, target, objectBounds }: Props) {
+export function CameraRig({ bounds, target, objectBounds, onRest }: Props) {
   const controlsRef = useRef<CameraControlsImpl>(null);
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const gl = useThree((s) => s.gl);
@@ -69,6 +71,11 @@ export function CameraRig({ bounds, target, objectBounds }: Props) {
         const t = bounds.center;
         return c.setLookAt(p.x, p.y, p.z, t.x, t.y, t.z, !cmd.instant);
       }
+      if (cmd.kind === 'look') {
+        const [px, py, pz] = cmd.position;
+        const [tx, ty, tz] = cmd.target;
+        return c.setLookAt(px, py, pz, tx, ty, tz, false);
+      }
       if (cmd.kind === 'fit') {
         const dir = c.getPosition(new THREE.Vector3()).sub(c.getTarget(new THREE.Vector3())).normalize();
         const d = fitDistance(bounds, dir, camera.fov, aspect);
@@ -104,6 +111,23 @@ export function CameraRig({ bounds, target, objectBounds }: Props) {
     c.addEventListener('controlstart', onStart);
     return () => c.removeEventListener('controlstart', onStart);
   }, []);
+
+  // 'rest' — плавное движение почти затихло, 'sleep' — камера встала совсем.
+  useEffect(() => {
+    const c = controlsRef.current;
+    if (!c || !onRest) return;
+    const report = () => {
+      const p = c.getPosition(new THREE.Vector3());
+      const t = c.getTarget(new THREE.Vector3());
+      onRest([p.x, p.y, p.z], [t.x, t.y, t.z]);
+    };
+    c.addEventListener('rest', report);
+    c.addEventListener('sleep', report);
+    return () => {
+      c.removeEventListener('rest', report);
+      c.removeEventListener('sleep', report);
+    };
+  }, [onRest]);
 
   // Двойной клик по поверхности: точка становится центром вращения, камера приближается.
   // Свой raycast вместо событий r3f: тяжёлые меши не перебираются на каждое движение мыши.

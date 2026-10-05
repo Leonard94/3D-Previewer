@@ -34,7 +34,6 @@ export interface ModelMeta {
 
 export interface ModelSummary {
   id: string; // 'street/mailbox/mailbox.glb'
-  category: string; // 'street' | ''
   modelDir: string; // 'street/mailbox'
   fileName: string; // 'mailbox.glb'
   blendFile: string | null; // 'mailbox.blend'

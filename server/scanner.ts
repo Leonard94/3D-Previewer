@@ -393,10 +393,8 @@ export class ModelLibrary extends EventEmitter<LibraryEvents> {
     analysisError?: string;
   }): ModelSummary {
     const meta = a.analysis?.meta;
-    const lastSlash = a.modelDir.lastIndexOf('/');
     return {
       id: a.id,
-      category: lastSlash < 0 ? '' : a.modelDir.slice(0, lastSlash),
       modelDir: a.modelDir,
       fileName: a.fileName,
       blendFile: null,

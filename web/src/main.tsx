@@ -7,7 +7,7 @@ import '@fontsource/inter/600.css';
 import './styles.css';
 import { HintLayer } from './components/HintLayer.tsx';
 import { CatalogPage } from './pages/Catalog/CatalogPage.tsx';
-import { ScenePage } from './pages/Scene/ScenePage.tsx';
+import { NewSceneRedirect, SceneRoute } from './pages/Scene/SceneRoute.tsx';
 import { SettingsPage } from './pages/Settings/SettingsPage.tsx';
 import { ViewerPage } from './pages/Viewer/ViewerPage.tsx';
 
@@ -17,7 +17,8 @@ createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route path="/" element={<CatalogPage />} />
         <Route path="/view" element={<ViewerPage />} />
-        <Route path="/scene" element={<ScenePage />} />
+        <Route path="/scene" element={<NewSceneRedirect />} />
+        <Route path="/scene/:id" element={<SceneRoute />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Routes>
       <HintLayer />

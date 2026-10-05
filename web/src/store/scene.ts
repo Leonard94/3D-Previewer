@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { Vec3 } from '../../../shared/types.ts';
+import type { SavedCamera, SavedScene } from './sceneLibrary.ts';
 
 /** Модель в сцене. Одна и та же модель может стоять несколько раз. */
 export interface SceneItem {
@@ -24,7 +25,12 @@ export type ItemStatus =
 export type GizmoMode = 'translate' | 'rotate';
 
 interface SceneState {
+  /** Открытая сцена; сохраняет её sceneLibrary. */
+  sceneId: string | null;
+  title: string;
   items: SceneItem[];
+  /** Последний ракурс камеры — сохраняется со сценой и восстанавливается при открытии. */
+  camera: SavedCamera | null;
   /** Состояние загрузки по uid — его пишет сцена three.js. */
   status: Record<string, ItemStatus>;
   /** Выделенная модель — у неё гизмо. */
@@ -35,6 +41,11 @@ interface SceneState {
   /** Запрос «Опустить на поверхность»; seq растёт, чтобы повтор тоже срабатывал. */
   drop: { uid: string; seq: number } | null;
 
+  open: (id: string, scene: Pick<SavedScene, 'title' | 'items' | 'camera'>) => void;
+  /** Та же сцена изменилась в другой вкладке. */
+  applyExternal: (scene: SavedScene) => void;
+  rename: (title: string) => void;
+  setCamera: (camera: SavedCamera) => void;
   add: (modelId: string) => string;
   remove: (uid: string) => void;
   duplicate: (uid: string) => void;
@@ -48,18 +59,36 @@ interface SceneState {
   setStatus: (status: Record<string, ItemStatus>) => void;
 }
 
-let nextUid = 0;
-const newUid = () => `m${++nextUid}`;
+// uid уникален в пределах сцены, в том числе среди сохранённых раньше моделей.
+const newUid = () => 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
-/** Сцена живёт в памяти вкладки: переживает переходы в каталог и обратно, но не перезагрузку. */
+const sameVec = (a: Vec3, b: Vec3) => a.every((v, i) => Math.abs(v - b[i]!) < 1e-4);
+
 export const useScene = create<SceneState>((set, get) => ({
+  sceneId: null,
+  title: '',
   items: [],
+  camera: null,
   status: {},
   selected: null,
   gizmo: 'translate',
   live: null,
   drop: null,
 
+  open: (sceneId, { title, items, camera }) =>
+    set({ sceneId, title, items, camera, status: {}, selected: null, gizmo: 'translate', live: null, drop: null }),
+  applyExternal: ({ title, items, camera }) => {
+    const { selected } = get();
+    set({ title, items, camera, selected: items.some((i) => i.uid === selected) ? selected : null, live: null });
+  },
+  rename: (title) => {
+    if (title.trim()) set({ title: title.trim() });
+  },
+  setCamera: (camera) => {
+    const prev = get().camera;
+    if (prev && sameVec(prev.position, camera.position) && sameVec(prev.target, camera.target)) return;
+    set({ camera });
+  },
   add: (modelId) => {
     const uid = newUid();
     set({ items: [...get().items, { uid, modelId, position: null, rotationY: 0, hidden: false }] });

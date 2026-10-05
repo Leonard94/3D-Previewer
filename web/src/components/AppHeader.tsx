@@ -21,9 +21,6 @@ export function AppHeader({ children }: { children?: React.ReactNode }) {
           </span>
         )}
         <span className={`app-header__dot ${connected ? 'on' : ''}`} data-hint={connected ? 'Связь с сервером есть' : 'Нет связи с сервером'} />
-        <Link to="/scene" className="btn" data-hint="Несколько моделей вместе">
-          Сцена
-        </Link>
         <Link to="/settings" className="btn">
           Настройки
         </Link>

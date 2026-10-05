@@ -78,6 +78,10 @@ export const ModelCard = memo(function ModelCard({ model: m, index, flashKey }: 
             {!thumbFailed && <span className="card__thumb-bar" />}
           </div>
         )}
+        <div className="card__files">
+          <span className="card__file">glb</span>
+          {m.blendFile && <span className="card__file">blend</span>}
+        </div>
         {(error > 0 || warning > 0) && (
           <div className="card__badges">
             {error > 0 && (
@@ -101,9 +105,8 @@ export const ModelCard = memo(function ModelCard({ model: m, index, flashKey }: 
           <span className="card__name">{m.title}</span>
         </div>
 
-        {(m.category || m.tags.length > 0) && (
+        {m.tags.length > 0 && (
           <div className="card__meta">
-            {m.category && <span className="card__cat">{m.category}</span>}
             {m.tags.slice(0, MAX_TAGS).map((t) => (
               <span key={t} className="card__tag">
                 {t}

@@ -95,57 +95,6 @@
   justify-content: center;
 }
 
-.tree {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.tree__item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  height: 30px;
-  padding-right: 10px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.tree__item:hover {
-  background: var(--panel-2);
-}
-
-.tree__item.active {
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
-  color: var(--accent);
-}
-
-.tree__item.muted:not(.active) .tree__label {
-  color: var(--text-2);
-}
-
-.tree__label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tree__count {
-  margin-left: 8px;
-  font-size: 12px;
-  color: var(--text-2);
-}
-
-.tree__item.active .tree__count {
-  color: inherit;
-}
-
 .chips {
   display: flex;
   flex-wrap: wrap;
@@ -305,6 +254,29 @@
   gap: 4px;
 }
 
+/* Наличие файлов модели — как теги во вьювере. */
+.card__files {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.card__file {
+  padding: 0 6px;
+  border: 1px solid rgb(232 230 225 / 0.35);
+  border-radius: 9px;
+  background: rgb(27 29 28 / 0.45);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 16px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .card__badges .badge.error {
   background: #f3d9d4;
   color: #a23b2c;
@@ -365,15 +337,6 @@
   font-size: 12px;
 }
 
-.card__cat {
-  color: var(--text-2);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 11px;
-  margin-right: 4px;
-  align-self: center;
-}
-
 .card__tag {
   padding: 0 7px;
   border: 1px solid var(--border);
@@ -402,4 +365,237 @@
 
 .card--broken .card__name {
   color: var(--text-2);
+}
+
+/* ---------- сцены ---------- */
+
+.scenes {
+  padding: 20px 28px 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.scenes__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.scenes__note {
+  margin-left: 8px;
+  font-size: 12px;
+}
+
+.scenes__row {
+  display: flex;
+  gap: 14px;
+  margin: 0;
+  padding: 2px 2px 6px;
+  overflow-x: auto;
+  list-style: none;
+}
+
+.scenes__row > li {
+  flex: none;
+}
+
+.scene-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  height: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  transition: border-color 0.15s;
+}
+
+.scene-card:hover {
+  border-color: #575c58;
+}
+
+.scene-card--new {
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 166px;
+  border-style: dashed;
+  background: transparent;
+  color: var(--text-2);
+  font: inherit;
+  cursor: pointer;
+}
+
+.scene-card--new:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.scene-card--new:focus-visible,
+.scene-card__link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.scene-card__link {
+  display: flex;
+  flex-direction: column;
+  /* Обрезает миниатюры по скруглению; меню — снаружи ссылки и не обрезается. */
+  border-radius: inherit;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+}
+
+.scene-card__mosaic {
+  display: grid;
+  aspect-ratio: 16 / 10;
+  gap: 1px;
+  background: var(--border);
+}
+
+.scene-card__mosaic > * {
+  min-width: 0;
+  min-height: 0;
+  background: var(--thumb-bg);
+}
+
+.scene-card__mosaic img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.scene-card__mosaic--0,
+.scene-card__mosaic--1 {
+  grid-template-columns: 1fr;
+}
+
+.scene-card__mosaic--2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.scene-card__mosaic--3,
+.scene-card__mosaic--4 {
+  grid-template: 1fr 1fr / 1fr 1fr;
+}
+
+/* Три миниатюры: первая — на всю высоту слева. */
+.scene-card__mosaic--3 img:first-child {
+  grid-row: span 2;
+}
+
+.scene-card__mosaic--0 > .scene-card__empty {
+  display: grid;
+  place-items: center;
+  background: var(--panel-2);
+  font-size: 12px;
+}
+
+.scene-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 11px 10px;
+}
+
+.scene-card__title {
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scene-card__rename {
+  height: 22px;
+  margin: 0 -5px;
+  padding: 0 4px;
+  font: inherit;
+  font-weight: 500;
+}
+
+.scene-card__meta {
+  font-size: 12px;
+}
+
+/* ---------- меню карточки сцены ---------- */
+
+.scene-card__menu {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.scene-card:hover .scene-card__menu,
+.scene-card__menu.open,
+.scene-card__menu:focus-within {
+  opacity: 1;
+}
+
+.scene-card__menu-btn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgb(27 29 28 / 0.82);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.scene-card__menu-btn:hover,
+.scene-card__menu.open .scene-card__menu-btn {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.scene-card__pop {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  width: 170px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+}
+
+.scene-card__item {
+  height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.scene-card__item:hover {
+  background: var(--panel-2);
+}
+
+.scene-card__item--danger {
+  color: var(--error);
+}
+
+.scenes__confirm {
+  margin: 0 0 16px;
+}
+
+.scenes__confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }

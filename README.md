@@ -36,7 +36,7 @@ npm run fetch:hdri   # один раз: HDRI для пресетов света 
 
 ```json
 {
-  "modelsDir": "./models",
+  "modelsDir": "../models",
   "host": "127.0.0.1",
   "port": 4310
 }

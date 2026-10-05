@@ -3,6 +3,7 @@ import { Canvas, useThree } from '@react-three/fiber';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import * as THREE from 'three';
 import type { TransformControls as TransformControlsImpl } from 'three-stdlib';
+import type { Vec3 } from '../../../shared/types.ts';
 import { useCatalog } from '../store/catalog.ts';
 import { useScene } from '../store/scene.ts';
 import { useViewer } from '../store/viewer.ts';
@@ -76,8 +77,14 @@ function SceneContent() {
       },
     });
     setStage(s);
-    // Новая вкладка (или возврат из каталога) — с «Общего» вида.
-    useViewer.getState().setView('general', { instant: true });
+    // Сохранённый ракурс сцены, а у новой сцены — «Общий» вид, когда загрузятся модели.
+    const saved = useScene.getState().camera;
+    if (saved) {
+      useViewer.getState().lookAt(saved.position, saved.target);
+      pendingCamera.current = null;
+    } else {
+      useViewer.getState().setView('general', { instant: true });
+    }
     return () => {
       s.dispose();
       disposeGltfLoader();
@@ -96,7 +103,7 @@ function SceneContent() {
     if (!pending) return;
     const v = useViewer.getState();
     if (pending === 'initial') {
-      // Возврат в сцену: дождаться, пока загрузятся все модели.
+      // Открытая сцена: дождаться, пока загрузятся все модели.
       const loading = Object.values(snapshot.status).some((st) => st.state === 'loading');
       if (snapshot.instances.length === 0 || loading) return;
       v.setView('general', { instant: true });
@@ -127,13 +134,15 @@ function SceneContent() {
       </Turntable>
       {mannequin && <Mannequin bounds={bounds} />}
       <SceneEffects instances={instances} />
-      {stage && <CameraRig bounds={bounds} target={stage.root} objectBounds={modelBounds} />}
+      {stage && <CameraRig bounds={bounds} target={stage.root} objectBounds={modelBounds} onRest={saveCamera} />}
       {stage && <ScenePicker stage={stage} gizmoRef={gizmoRef} />}
       {stage && <Selection stage={stage} instances={instances} gizmoRef={gizmoRef} />}
       <Screenshot title="Сцена" />
     </>
   );
 }
+
+const saveCamera = (position: Vec3, target: Vec3) => useScene.getState().setCamera({ position, target });
 
 /** Режим отображения, влажность и каркас — для всех моделей сцены. Порядок эффектов важен. */
 function SceneEffects({ instances }: { instances: SceneInstance[] }) {

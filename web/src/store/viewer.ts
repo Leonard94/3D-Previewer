@@ -12,7 +12,9 @@ export type CameraCommand =
   | { kind: 'fit'; seq: number }
   | { kind: 'focus'; point: [number, number, number]; seq: number }
   /** Вписать в кадр объект модели (по имени узла; в сцене — модель по uid) в текущем ракурсе. */
-  | { kind: 'object'; name: string; seq: number };
+  | { kind: 'object'; name: string; seq: number }
+  /** Сразу встать в заданный ракурс — сохранённый со сценой. */
+  | { kind: 'look'; position: [number, number, number]; target: [number, number, number]; seq: number };
 
 type DistributiveOmit<T, K extends keyof T> = T extends unknown ? Omit<T, K> : never;
 
@@ -59,6 +61,7 @@ interface ViewerState {
 
   setView: (view: ViewName, opts?: { instant?: boolean }) => void;
   fit: () => void;
+  lookAt: (position: [number, number, number], target: [number, number, number]) => void;
   focusPoint: (p: THREE.Vector3) => void;
   clearActiveView: () => void;
   setGrid: (on: boolean) => void;
@@ -126,6 +129,7 @@ export const useViewer = create<ViewerState>((set, get) => ({
 
   setView: (view, opts) => set({ activeView: view, command: cmd({ kind: 'view', view, instant: opts?.instant }) }),
   fit: () => set({ command: cmd({ kind: 'fit' }) }),
+  lookAt: (position, target) => set({ activeView: null, command: cmd({ kind: 'look', position, target }) }),
   focusPoint: (p) => set({ activeView: null, command: cmd({ kind: 'focus', point: [p.x, p.y, p.z] }) }),
   clearActiveView: () => set({ activeView: null }),
   setGrid: (grid) => {
