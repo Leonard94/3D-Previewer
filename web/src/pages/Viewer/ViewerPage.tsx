@@ -196,11 +196,10 @@ export function ViewerPage() {
   );
 }
 
-/** Подсказка по управлению внизу вьюпорта. */
+/** Подсказка внизу вьюпорта — ссылка на горячие клавиши (там же и управление мышью). */
 export function ViewportHint() {
   return (
     <div className="viewer__hint">
-      ЛКМ — вращение · колесо — масштаб · ПКМ — сдвиг · двойной клик — приблизить ·{' '}
       <button type="button" className="viewer__hotkeys-btn" onClick={() => useViewer.getState().setHotkeysOpen(true)}>
         <kbd className="kbd">?</kbd> горячие клавиши
       </button>

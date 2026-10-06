@@ -51,16 +51,15 @@
   place-items: center;
   width: 32px;
   height: 32px;
-  border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: rgb(27 29 28 / 0.78);
-  backdrop-filter: blur(6px);
-  color: var(--text);
+  color: rgb(232 230 225 / 0.6);
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.5));
   pointer-events: auto;
+  transition: color 0.15s;
 }
 
 .viewer__back:hover {
-  background: var(--panel-2);
+  color: var(--text);
 }
 
 .viewer__back:focus-visible {
@@ -307,6 +306,19 @@
 
 .viewer__toggles--spaced {
   margin-top: 14px;
+}
+
+.dim-units {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+.dim-units .btn {
+  min-width: 44px;
 }
 
 .wetness {

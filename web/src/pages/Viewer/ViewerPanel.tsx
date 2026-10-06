@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import type { ModelDetails } from '../../../../shared/types.ts';
 import { Section, Toggle } from '../../components/ui.tsx';
+import { LENGTH_UNIT_LABELS, type LengthUnit } from '../../format.ts';
 import { useViewer } from '../../store/viewer.ts';
 import { LIGHT_PRESETS, LIGHT_PRESET_ORDER, type LightPresetId } from '../../three/lightPresets.ts';
 import { VIEW_LABELS, type ViewName } from '../../three/views.ts';
@@ -13,6 +14,7 @@ import { StatsSection } from './StatsSection.tsx';
 import { TexturesSection } from './TexturesSection.tsx';
 
 const VIEWS: ViewName[] = ['general', 'top', 'side'];
+const LENGTH_UNITS: LengthUnit[] = ['m', 'cm'];
 
 export function ViewerPanel({ model }: { model: ModelDetails | null }) {
   return (
@@ -142,6 +144,8 @@ export function DisplaySection() {
   const setMannequin = useViewer((s) => s.setMannequin);
   const dimensions = useViewer((s) => s.dimensions);
   const setDimensions = useViewer((s) => s.setDimensions);
+  const dimUnit = useViewer((s) => s.dimUnit);
+  const setDimUnit = useViewer((s) => s.setDimUnit);
   const shadows = useViewer((s) => s.shadows);
   const setShadows = useViewer((s) => s.setShadows);
   return (
@@ -149,9 +153,21 @@ export function DisplaySection() {
       <div className="viewer__toggles">
         <Toggle label="Сетка" checked={grid} onChange={setGrid} hint="Клавиша G" />
         <Toggle label="Манекен 1,8 м" checked={mannequin} onChange={setMannequin} hint="Клавиша H — для проверки масштаба" />
-        <Toggle label="Габариты" checked={dimensions} onChange={setDimensions} hint="Клавиша B — рамка с размерами в метрах" />
+        <Toggle label="Габариты" checked={dimensions} onChange={setDimensions} hint="Клавиша B — рамка с размерами модели" />
         <Toggle label="Тени" checked={shadows} onChange={setShadows} />
       </div>
+      {dimensions && (
+        <div className="dim-units">
+          <span className="muted">Единицы габаритов</span>
+          <div className="btn-group">
+            {LENGTH_UNITS.map((u) => (
+              <button key={u} type="button" className={`btn btn--small${dimUnit === u ? ' active' : ''}`} onClick={() => setDimUnit(u)}>
+                {LENGTH_UNIT_LABELS[u]}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </Section>
   );
 }

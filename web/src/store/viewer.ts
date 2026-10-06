@@ -1,5 +1,6 @@
 import type * as THREE from 'three';
 import { create } from 'zustand';
+import type { LengthUnit } from '../format.ts';
 import type { DisplayMode } from '../three/displayModes.ts';
 import { LIGHT_PRESET_ORDER, type LightPresetId } from '../three/lightPresets.ts';
 import type { ViewName } from '../three/views.ts';
@@ -44,6 +45,8 @@ interface ViewerState {
   /** Вспомогательные элементы: запоминаются для всех моделей. */
   mannequin: boolean;
   dimensions: boolean;
+  /** Единицы подписей габаритов. */
+  dimUnit: LengthUnit;
   shadows: boolean;
 
   // Объекты модели — по именам узлов: так они переживают переэкспорт (горячую перезагрузку).
@@ -78,6 +81,7 @@ interface ViewerState {
   setHdriMissing: (url: string, missing: boolean) => void;
   setMannequin: (on: boolean) => void;
   setDimensions: (on: boolean) => void;
+  setDimUnit: (unit: LengthUnit) => void;
   setShadows: (on: boolean) => void;
   toggleHidden: (name: string) => void;
   toggleIsolated: (name: string) => void;
@@ -97,6 +101,8 @@ export type Shading = 'wireframe' | DisplayMode;
 
 const wireMode = (shading: Shading, overlay: boolean): WireframeMode =>
   shading === 'wireframe' ? 'only' : overlay ? 'overlay' : 'off';
+
+const isLengthUnit = (v: unknown): v is LengthUnit => v === 'm' || v === 'cm';
 
 const isPresetId = (v: unknown): v is LightPresetId => LIGHT_PRESET_ORDER.includes(v as LightPresetId);
 
@@ -119,6 +125,7 @@ export const useViewer = create<ViewerState>((set, get) => ({
   shading: 'normal',
   mannequin: readSetting('mannequin', false),
   dimensions: readSetting('dimensions', false),
+  dimUnit: readSetting<LengthUnit>('dimUnit', 'm', isLengthUnit),
   shadows: readSetting('shadows', true),
   hidden: [],
   isolated: null,
@@ -176,6 +183,10 @@ export const useViewer = create<ViewerState>((set, get) => ({
   setDimensions: (dimensions) => {
     writeSetting('dimensions', dimensions);
     set({ dimensions });
+  },
+  setDimUnit: (dimUnit) => {
+    writeSetting('dimUnit', dimUnit);
+    set({ dimUnit });
   },
   setShadows: (shadows) => {
     writeSetting('shadows', shadows);

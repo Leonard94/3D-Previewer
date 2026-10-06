@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import { VERTEX_ATTRIBUTES, type ModelDetails } from '../../../../shared/types.ts';
 import { Section } from '../../components/ui.tsx';
-import { formatBytes, formatCm, formatDensity, formatInt, formatMeters, textureSizeLabel } from '../../format.ts';
+import { formatBytes, formatCm, formatDensity, formatInt, formatLength, formatLengthValue, textureSizeLabel } from '../../format.ts';
 import { ATTRIBUTE_HINTS, ATTRIBUTE_LABELS, PRESENCE_LABELS } from '../../labels.ts';
+import { useViewer } from '../../store/viewer.ts';
 
 function Metric({ label, hint, children, wide }: { label: string; hint?: string; children: ReactNode; wide?: boolean }) {
   return (
@@ -18,6 +19,7 @@ function Metric({ label, hint, children, wide }: { label: string; hint?: string;
 const Sub = ({ children }: { children: ReactNode }) => <div className="metric__sub">{children}</div>;
 
 export function StatsSection({ model }: { model: ModelDetails }) {
+  const dimUnit = useViewer((st) => st.dimUnit);
   const s = model.stats;
   if (!s) return null;
   const m = s.materials;
@@ -98,7 +100,7 @@ export function StatsSection({ model }: { model: ModelDetails }) {
           )}
         </Metric>
         <Metric label="Габариты" hint="Мировой AABB всех мешей: X × Y × Z" wide>
-          {formatMeters(sx).replace(' м', '')} × {formatMeters(sy).replace(' м', '')} × {formatMeters(sz)}
+          {formatLengthValue(sx, dimUnit)} × {formatLengthValue(sy, dimUnit)} × {formatLength(sz, dimUnit)}
           <Sub>
             низ модели:{' '}
             {Math.abs(s.minY) <= 0.0005 ? 'на полу' : s.minY > 0 ? `над полом на ${formatCm(s.minY)}` : `под полом на ${formatCm(s.minY)}`}

@@ -1,7 +1,8 @@
 import { useThree } from '@react-three/fiber';
 import { useEffect, useMemo } from 'react';
 import * as THREE from 'three';
-import { formatMeters } from '../format.ts';
+import { formatLength } from '../format.ts';
+import { useViewer } from '../store/viewer.ts';
 import type { ModelBounds } from './bounds.ts';
 import { HIGHLIGHT_COLOR } from './highlight.ts';
 import { CAMERA_FOV } from './views.ts';
@@ -44,11 +45,12 @@ function createLabel(text: string): THREE.Sprite {
 }
 
 /**
- * Габариты: рамка-параллелепипед вокруг модели и подписи длины, ширины и высоты в метрах —
+ * Габариты: рамка-параллелепипед вокруг модели и подписи длины, ширины и высоты (в метрах или сантиметрах) —
  * как размеры на чертеже. Живёт внутри поворотного стола, поэтому вращается вместе с моделью.
  */
 export function Dimensions({ bounds }: { bounds: ModelBounds }) {
   const viewportHeight = useThree((s) => s.size.height);
+  const unit = useViewer((s) => s.dimUnit);
 
   const { group, labels } = useMemo(() => {
     const { min, max } = bounds.box;
@@ -67,9 +69,9 @@ export function Dimensions({ bounds }: { bounds: ModelBounds }) {
     // Подписи — на серединах рёбер, ближних к зрителю в виде «Общий» (спереди-справа).
     const lift = Math.max(size.length() * 0.015, 0.01);
     const labels = [
-      [formatMeters(size.x), new THREE.Vector3(center.x, min.y, max.z + lift)], // длина — по X
-      [formatMeters(size.z), new THREE.Vector3(max.x + lift, min.y, center.z)], // ширина — по Z
-      [formatMeters(size.y), new THREE.Vector3(max.x + lift, center.y, max.z + lift)], // высота — по Y
+      [formatLength(size.x, unit), new THREE.Vector3(center.x, min.y, max.z + lift)], // длина — по X
+      [formatLength(size.z, unit), new THREE.Vector3(max.x + lift, min.y, center.z)], // ширина — по Z
+      [formatLength(size.y, unit), new THREE.Vector3(max.x + lift, center.y, max.z + lift)], // высота — по Y
     ].map(([text, pos]) => {
       const sprite = createLabel(text as string);
       sprite.position.copy(pos as THREE.Vector3);
@@ -77,7 +79,7 @@ export function Dimensions({ bounds }: { bounds: ModelBounds }) {
       return sprite;
     });
     return { group, labels };
-  }, [bounds]);
+  }, [bounds, unit]);
 
   // sizeAttenuation = false: высота спрайта в долях экрана = scale / (2·tan(fov/2)).
   useEffect(() => {
